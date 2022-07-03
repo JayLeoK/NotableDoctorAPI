@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotableDoctorAPI.Models;
-using NotableDoctorAPI;
 
 namespace NotableDoctorAPI.Controllers
 {
@@ -15,12 +14,16 @@ namespace NotableDoctorAPI.Controllers
     public class DoctorController : ControllerBase
     {
         private readonly DoctorAppContext _context;
+        private readonly AppointmentRepository appointmentRepository;
 
         public DoctorController(DoctorAppContext context)
         {
             _context = context;
-            var helper = new StartupDbHelper();
-            helper.SeedData(_context);
+            StartupDbHelper startupDbHelper = new StartupDbHelper();
+            appointmentRepository = new AppointmentRepository(context);
+
+            startupDbHelper.SeedDoctorData(context, appointmentRepository);
+            Console.WriteLine("seeded doctor data??");
         }
 
         // GET: api/Doctor
@@ -31,8 +34,8 @@ namespace NotableDoctorAPI.Controllers
           {
               return NotFound();
           }
-           
             return await _context.Doctors.ToListAsync();
+
         }
 
         // GET: api/Doctor/5
@@ -91,7 +94,7 @@ namespace NotableDoctorAPI.Controllers
         {
           if (_context.Doctors == null)
           {
-              return Problem("Entity set 'DoctorAppContext.Doctors' is null.");
+              return Problem("Entity set 'DoctorAppContext.Doctors'  is null.");
           }
             _context.Doctors.Add(doctor);
             await _context.SaveChangesAsync();
@@ -124,6 +127,14 @@ namespace NotableDoctorAPI.Controllers
             return (_context.Doctors?.Any(e => e.DoctorId == id)).GetValueOrDefault();
         }
 
+        [HttpGet("{doctorId}/getAppointments")]
+        public async Task<ActionResult<IEnumerable<Appointment>>> GetAppointments(long doctorId, string dateString)
+        {
+            string[] dateElements = dateString.Split('/');
+            var date = new DateTime(int.Parse(dateElements[0]), int.Parse(dateElements[1]), int.Parse(dateElements[2]));
+            List<Appointment> appointments = (List<Appointment>) await appointmentRepository.GetAppointmentsByDoctorId(doctorId);
+            return Ok(appointments.Where(a => a.StartTime.Date.CompareTo(date) == 0));
+        }
 
         
     }

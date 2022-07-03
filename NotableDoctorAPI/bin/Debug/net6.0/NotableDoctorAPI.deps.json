@@ -8,6 +8,7 @@
     ".NETCoreApp,Version=v6.0": {
       "NotableDoctorAPI/1.0.0": {
         "dependencies": {
+          "Microsoft.EntityFrameworkCore": "6.0.6",
           "Microsoft.EntityFrameworkCore.InMemory": "6.0.6",
           "Microsoft.EntityFrameworkCore.SqlServer": "6.0.6",
           "Microsoft.EntityFrameworkCore.Sqlite": "6.0.6",

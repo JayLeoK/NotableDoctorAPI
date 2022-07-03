@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddDbContext<DoctorAppContext>(opt =>
     opt.UseInMemoryDatabase("DoctorAppDB"));
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new() { Title = "NotableDoctorAPI", Version = "v1" });
